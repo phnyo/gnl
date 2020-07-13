@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/04 07:46:16 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/07/10 16:47:49 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/07/13 13:26:50 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,22 @@ void	ft_memcpy(void *dst, void *src, size_t size)
 	}
 }
 
-void	*extend_malloc(char *prev, size_t add_size)
+void	*reallocate(char *prev, int add_size, int opt)
 {
 	unsigned char	*ret;
 	int				mem_size;
 
-	mem_size = ft_strlen(prev) + add_size;
+	mem_size = ft_strlen(prev) + add_size * opt + 1;
 	ret = malloc(mem_size);
 	if (!ret)
 		return (0);
-	while (--mem_size)
-		ret[mem_size] = 0;
-	if (prev)
+	ret[mem_size - 1] = 0;
+	if (prev && *prev)
 	{
-		ft_memcpy(ret, prev, ft_strlen(prev));
+		if (opt == 1)
+			ft_memcpy(ret, prev, mem_size - add_size - 1);
+		else
+			ft_memcpy(ret, prev + add_size, mem_size - 1);
 		free(prev);
 	}
 	return (void *) ret;
@@ -62,57 +64,47 @@ int	get_end_of_line(char *line)
 	size_t	size;
 
 	size = 0;
-	while (*line && *line != '\n')
+	while (line && *line && *line != 10)
 	{
 		size++;
 		line++;
 	}
-	return (size);
+	return (size + 1);
 }
 
 int	get_next_line(int fd, char **line)
 {
-	static char		*buffer;
-	int				read_ret;
-	int				cnt;
-	int				inc_cnt;
+	static char *storage;
+	int			itr;
+	int			read_val;
 
-	// check buffer's address
-	if (!buffer)
+	itr = get_end_of_line(storage);
+	while (1)
 	{
-		buffer = extend_malloc(0, BUFFER_SIZE);
-		read_ret = read(fd, buffer, BUFFER_SIZE);
-	}
-	cnt = ft_strlen(buffer);
-	inc_cnt = 0;
-	// while not line end concat buffer
-	while (BUFFER_SIZE == cnt - inc_cnt)
-	{
-		buffer = extend_malloc(buffer, BUFFER_SIZE);
-		if (!buffer)
+		if (storage && storage[itr - 1] == '\n')
+			break;
+		if (!(storage = reallocate(storage, BUFFER_SIZE, 1)))
 			return (-1);
-		read_ret = read(fd, buffer + cnt, BUFFER_SIZE);
-		if (read_ret == -1)
+		if ((read_val = read(fd, storage + itr - 1, BUFFER_SIZE)) == -1)
 		{
-			free(buffer);
+			free(storage);
+			line[0][0] = 0;
 			return (-1);
 		}
-		inc_cnt = cnt;
-		cnt += read_ret;
+		if (!read_val)
+			break ;
+		itr += get_end_of_line(storage + itr);
 	}
-	// cut the line from buffer
-	inc_cnt = get_end_of_line(buffer);
-	ft_memcpy((*line), buffer, inc_cnt + 1);
-	if (inc_cnt != cnt)
+	ft_memcpy((*line), storage, itr);
+	line[0][itr] = 0;
+	if (storage[itr])
+		storage = reallocate(storage, itr, -1);
+	else
 	{
-		ft_memcpy(buffer, (buffer + inc_cnt + 1), cnt - inc_cnt);
-		buffer[inc_cnt] = 0;
+		free(storage);
+		storage = 0;
 	}
-	line[0][inc_cnt] = '\0';
-	if (read_ret == 1)
-		free(buffer);
-	// return whatever number there is
-	return (read_ret != 1 ? 1 : 0);
+	return (read_val > 0);
 }
 
 #include<limits.h>
@@ -125,9 +117,7 @@ int main(int argc, char **argv)
 	else
 		fd = -1;
 	char *c = malloc(sizeof(char) * INT_MAX);
-	for (int i = 0; i < 30; i++){
-		get_next_line(fd, &c);
-		printf("%s\n", c);
-	}
+	while (get_next_line(fd, &c) == 1)
+		printf("%s", c);
 	free(c);
 }
