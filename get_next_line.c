@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/04 07:46:16 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/07/13 13:26:50 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/07/14 22:28:07 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,11 @@ void	*reallocate(char *prev, int add_size, int opt)
 {
 	unsigned char	*ret;
 	int				mem_size;
+	int				prev_size;
 
-	mem_size = ft_strlen(prev) + add_size * opt + 1;
+	prev_size = ft_strlen(prev);
+	mem_size = (prev_size > add_size ? add_size * opt + prev_size 
+		: add_size + prev_size * opt ) + 1;
 	ret = malloc(mem_size);
 	if (!ret)
 		return (0);
@@ -93,7 +96,7 @@ int	get_next_line(int fd, char **line)
 		}
 		if (!read_val)
 			break ;
-		itr += get_end_of_line(storage + itr);
+		itr += get_end_of_line(storage + itr - 1) - 1;
 	}
 	ft_memcpy((*line), storage, itr);
 	line[0][itr] = 0;
