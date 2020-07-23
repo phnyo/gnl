@@ -6,20 +6,22 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/14 22:57:14 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/07/14 22:57:29 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/07/20 20:59:10 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
+/*
 int		ft_strlen(const char *dst)
 {
 	int	ret;
 
 	ret = 0;
 	if (dst)
+    {
 		while (*dst++)
 			ret++;
+    }
 	return (ret);
 }
 
@@ -37,3 +39,4 @@ void	ft_memcpy(void *dst, void *src, size_t size)
 		src_p++;
 	}
 }
+*/
