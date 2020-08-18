@@ -1,28 +1,31 @@
 #include "get_next_line.h"
 #include<limits.h>
 
+int	get_next_line(int fd, char **line);
+
 int main(int argc, char **argv)
 {
-	int fd[argc - 1];
 	int itr = 1;
 	int flg;
-	if (argc >= 2)
-		while (itr < argc)
-			fd[itr - 1] = open(argv[itr++], O_RDONLY);
-	else
-		fd[0] = -1;
-	char *c = malloc(sizeof(char) * INT_MAX);
+
+	char *c = malloc(sizeof(char) * 10);
 		flg = 1;
 		itr = 1;
-		while (itr < argc)
-		{
-			while(get_next_line(fd[itr], &c) == 1)
+	int fd = open(argv[1], O_RDONLY);
+		/*while (itr < argc)
+		{*/
+			while(get_next_line(fd, &c) == 1)
 			//{
 				printf("%s\n", c);
 				/*while (get_next_line(fd[itr+1], &c) > 0)
-					printf("%s", c);*/
+					printf("%s", c);
+			
 			//}
 			itr++;
-		}
+		}*/
+	/*get_next_line(open(argv[1], O_RDONLY), &c);	
+	printf("%s\n", c);
+	get_next_line(open(argv[1], O_RDONLY), &c);
+	printf("%s\n", c);*/	
 	free(c);
 }

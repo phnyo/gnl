@@ -5,179 +5,186 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/07/04 07:46:16 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/07/21 08:26:39 by fsugimot         ###   ########.fr       */
+/*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
+/*   Updated: 2020/08/18 21:23:46 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int		all_free(char **store)
+int ft_strlen(char *line)
 {
-	int	itr;
+    int index;
 
-	if (store)
-	{
-		itr = 0;
-		while (store[itr])
-		{
-			free(store[itr]);
-			itr++;
-		}
-		free(store);
-	}
-	return (-1);
+    index = 0;
+    while (line[index])
+        index++;
+    return (index);
 }
 
-void	null_clear(char **src)
+int is_parsable(char *line, int ind)
 {
-	int itr;
+    int index;
 
-	itr = 0;
-	while (itr < 256)
-		src[itr++] = 0;
+    index = ind - BUFFER_SIZE;
+    if (index < 0)
+        index = 0;
+    while (line[index] && line[index] != '\n' && index < ind)
+        index++;
+    return (index != ind);
 }
 
-int		check_threads(char **src)
+char    *add_memback(char *line, int size)
 {
-	int	itr;
+    char    *ret;
+    char    tmp[ft_strlen(line) + size];
+    int     alloc_size;
+    int     index;
 
-	itr = 256;
-	while (itr)
-	{
-		if (src[itr])
-			return (1);
-		--itr;
-	}
-	return (0);
+    index = 0;
+    alloc_size = ft_strlen(line) + size;
+    while (index < alloc_size - size)
+    {
+        tmp[index] = line[index];
+        ++index;
+    }
+    index ^= index;
+    free(line); 
+    ret = malloc(alloc_size + 1);
+    if (ret)
+    {
+        ret[alloc_size] = 0;
+       while (index < alloc_size - size)
+       {
+           ret[index] = tmp[index];
+           ++index;
+       }
+    }
+    return (ret);
 }
 
-int		ft_strlen(const char *src)
+int fetch_line(int fd, char **line, int ini_i)
 {
-	int	ret;
+    int index;
+    int ret_num;
+    char    *tmp;
 
-	ret = 0;
-	while (*src)
-	{
-		++ret;
-		++src;
-	}
-	return (ret);
+    if (!line)
+    {
+        line = malloc(sizeof(char *));
+        if (!line)
+            return (0);
+    }
+    index = ini_i;
+    tmp = (!line[0] ? malloc(sizeof(char)) : line[0]);
+    tmp[0] = (tmp[0] ? tmp[0] : 0);
+    if (!tmp)
+        return (-1);
+    while (!tmp[0] || (tmp[0] == '\n' && !tmp[1]) || !is_parsable(tmp, index))
+    {
+        tmp = add_memback(tmp, BUFFER_SIZE);
+        ret_num = read(fd, tmp + index, BUFFER_SIZE);
+        if (ret_num <= 0)
+            break;
+        index += ret_num;
+    }
+    tmp[index] = 0;
+    line[0] = tmp;
+    return (index - ini_i);
 }
 
-void	ft_memcpy(void *dst, void *src, size_t mem_size)
+char    *cut_back(char *line, int front, int back)
 {
-	unsigned char	*dst_ptr;
-	unsigned char	*src_ptr;
+    char    *ret;
+    char    tmp[back - front + 1];
+    int     itr;
 
-	dst_ptr = dst;
-	src_ptr	= src;
-	while (mem_size)
-	{
-		*dst_ptr = *src_ptr;
-		++dst_ptr;
-		++src_ptr;
-		--mem_size;
-	}
+    itr = back - front;
+        while (itr)
+        {
+            tmp[itr - 1] = line[itr + front];
+            itr--;
+        }    
+    itr = back - front - 1; 
+    free(line);
+    ret = malloc(itr + 1);
+    if (ret)
+    {
+        ret[itr--] = 0;
+        while (itr > -1)
+        {
+            ret[itr] = tmp[itr];
+            itr--;
+        }
+    }   
+    return (ret);
 }
 
-char	*concat(char *src, int size, int flg)
+void    cut_front(char *src, char **dst, int back)
 {
-	char	*ret;
-	int		mem_size;
+    char    *ret;
+    int     itr;
 
-	if (!src)
-		mem_size = size + 1;
-	else
-		mem_size = ft_strlen(src) + size * flg + 1;
-	ret = malloc(mem_size);
-	if (!ret)
-		return (0);
-	ret[0] = 0;
-	ret[mem_size - 1] = 0;
-	if (flg == 1)
-		ft_memcpy(ret, src, mem_size - size - 1);
-	else
-		ft_memcpy(ret, src + size, mem_size - 1);
-	free(src);
-	return (ret);
+    free(dst[0]);
+    itr = back;
+    ret = malloc(itr + 1);
+    if (ret)
+    {
+        ret[itr--] = 0;
+        while (itr > -1)
+        {
+            ret[itr] = src[itr];
+            itr--;
+        }
+    }
+    dst[0] = ret;
 }
 
-int		find_new_line(char *src)
+char    **cut_line(char **src, char **dst, int reari)
 {
-	int	itr;
+    int fronti;
+    char    **ret;
 
-	itr = 0;
-	while (src[itr] && src[itr] != '\n')
-		++itr;
-	if (src[itr] == '\n')
-		++itr;
-	return (itr);
+    ret = src;
+    fronti = 0; 
+    while (src[0][fronti] && src[0][fronti] != '\n')
+        fronti++;
+    cut_front(src[0], dst, fronti);
+    src[0] = cut_back(src[0], fronti, reari);
+    return (ret);
 }
 
-int		capture_line(char **dst, int fd)
+int get_next_line(int fd, char **line)
 {
-	int	ret;
-	int	tmp;
-
-	ret = dst[0] ? ft_strlen(dst[0]) : 0;
-	while (1)
-	{
-		dst[0] = concat(dst[0], BUFFER_SIZE, 1);	
-		if (!dst[0])
-			return (-1);
-		if ((tmp = read(fd, dst[0] + ret, BUFFER_SIZE)) <= 0)
-			ret = tmp;
-		else
-			ret += find_new_line(dst[0] + ret);
-		if (ret <= 0 || !dst[0][ret - 1] || dst[0][ret - 1] == '\n')
-			break;
-	}
-	dst[1] = concat(dst[1], ft_strlen(dst[0]) - ret, 1);
-	ft_memcpy(dst[1], dst[0] + ret, ft_strlen(dst[0]) - ret);
-	dst[0] = concat(dst[0], ret, 1);
-	dst[0][ret - 1] = 0;
-	return (ret);
-}
-
-char	*process_line(char *dst, char *src)
-{
-	int		src_size;
-
-	free(dst);
-	src_size = ft_strlen(src);
-	if (!(dst = malloc(src_size + 1)))
-		return (0);
-	ft_memcpy(dst, src, src_size);
-	dst[src_size] = 0;
-	return (dst);
-}
-
-int	get_next_line(int fd, char **line)
-{
-	static char	**store;
-	int			ret_val;
-
-	fd = fd > 0 ? fd : -1;
-	if (fd > 0 && !store)
-		null_clear(store = malloc(sizeof(char *) * 258));
-	if (fd > 0)
-		ret_val = capture_line(&store[fd - 1], fd);
-	if (fd < 0 || ret_val == -1)
-		return (all_free(store));
-	if (!(line[0] = process_line(line[0], store[fd - 1])))
-	{
-		free(store[fd - 1]);
-		return (-1);
-	}
-	if(store[fd][0] && !(store[fd - 1] = concat(store[fd], ret_val - ft_strlen(store[fd]), -1)))
-		return (-1);
-	if (!ret_val || !store[fd - 1][ret_val])
-	{
-		free(store[fd - 1]);
-		store[fd - 1] = 0;
-	}
-	if (!check_threads(store))
-		free(store);
-	return (ret_val > 0);
+    static char     **store;
+    int             ret;
+    
+    if (fd < 0 || !line)
+        return (-1);
+    if (!line[0])
+        line[0] = malloc(sizeof(char));
+    if (!store)
+    {
+        store = malloc(sizeof(char *));
+        store[0] = 0;
+    }
+    if (!store || !line[0])
+    {
+        !store ? free(line[0]) : free(store);
+        return (-1);
+    }
+    line[0][0] = 0;
+    ret = fetch_line(fd, store, (store[0] ? ft_strlen(store[0]) : 0));
+    if (!store)
+        return (-1);
+    store = cut_line(store, line, ft_strlen(store[0]));
+    if (!store)
+        return (-1);
+    if (!ret && !line[0][0] && !store[0][0])
+    {
+        free(store[0]);
+        free(store);
+        store = 0;
+    }
+    return (ret || store);
 }
