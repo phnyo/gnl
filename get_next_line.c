@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/08/18 21:23:46 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/08/19 14:12:47 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,10 +76,15 @@ int fetch_line(int fd, char **line, int ini_i)
             return (0);
     }
     index = ini_i;
-    tmp = (!line[0] ? malloc(sizeof(char)) : line[0]);
-    tmp[0] = (tmp[0] ? tmp[0] : 0);
-    if (!tmp)
-        return (-1);
+    if (!line[0])
+    {
+        tmp = malloc(sizeof(char));
+        if (!tmp)
+            return (-1);
+        tmp[0] = 0;
+    }
+    else
+        tmp = line[0];
     while (!tmp[0] || (tmp[0] == '\n' && !tmp[1]) || !is_parsable(tmp, index))
     {
         tmp = add_memback(tmp, BUFFER_SIZE);
@@ -96,27 +101,20 @@ int fetch_line(int fd, char **line, int ini_i)
 char    *cut_back(char *line, int front, int back)
 {
     char    *ret;
-    char    tmp[back - front + 1];
     int     itr;
 
     itr = back - front;
-        while (itr)
-        {
-            tmp[itr - 1] = line[itr + front];
-            itr--;
-        }    
-    itr = back - front - 1; 
-    free(line);
     ret = malloc(itr + 1);
     if (ret)
     {
-        ret[itr--] = 0;
-        while (itr > -1)
+        ret[itr] = 0;
+        while (itr)
         {
-            ret[itr] = tmp[itr];
+            ret[itr - 1] = line[itr + front];
             itr--;
         }
-    }   
+    }
+    free(line);
     return (ret);
 }
 
