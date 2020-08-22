@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/08/22 14:21:11 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/08/22 14:32:37 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ int fetch_line(int fd, char **line, int ini_i)
     }
     tmp[index] = 0;
     line[0] = tmp;
-    return (index - ini_i);
+    return (ret_num == -1 ? ret_num : index - ini_i);
 }
 
 char    *cut_back(char *line, int front, int back)
