@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/08/22 13:48:38 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/08/22 13:54:57 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,11 +171,11 @@ int get_next_line(int fd, char **line)
     is_eof = cut_line(store, line, ft_strlen(store[0]));
     if (!store)
         return (-1);
-    if (!ret && is_eof)
+    if (is_eof)
     {
         free(store[0]);
         free(store);
         store = 0;
     }
-    return (ret || store);
+    return (!is_eof);
 }
