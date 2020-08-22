@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/08/22 14:32:37 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/08/22 17:19:48 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,17 +62,11 @@ int fetch_line(int fd, char **line, int ini_i)
     int ret_num;
     char    *tmp;
 
-    if (!line)
-    {
-        line = malloc(sizeof(char *));
-        if (!line)
-            return (0);
-    }
     index = ini_i;
     if (!line[0])
     {
         tmp = malloc(sizeof(char));
-        if (!tmp)
+		if (!tmp)
             return (-1);
         tmp[0] = 0;
     }
@@ -86,7 +80,7 @@ int fetch_line(int fd, char **line, int ini_i)
             break;
         index += ret_num;
     }
-    tmp[index] = 0;
+	tmp[index] = 0;
     line[0] = tmp;
     return (ret_num == -1 ? ret_num : index - ini_i);
 }
@@ -149,22 +143,14 @@ int get_next_line(int fd, char **line)
     static char     **store;
     int             ret;
     
-    if (fd < 0 || !line)
+    if (fd < 0 || !line || !(line[0] = malloc(sizeof(char))))
         return (-1);
-    if (line[0])
-        free(line[0]);
-    line[0] = malloc(sizeof(char));
     if (!store)
     {
-        store = malloc(sizeof(char *));
+        if (!(store = malloc(sizeof(char *))))
+			return (-1);
         store[0] = 0;
     }
-    if (!store || !line[0])
-    {
-        !store ? free(line[0]) : free(store);
-        return (-1);
-    }
-    line[0][0] = 0;
     ret = fetch_line(fd, store, (store[0] ? ft_strlen(store[0]) : 0));
     if (!store || ret == -1)
         return (-1);
