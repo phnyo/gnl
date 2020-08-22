@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/08/22 13:43:44 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/08/22 13:48:38 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,29 +37,22 @@ int is_parsable(char *line, int ind)
 char    *add_memback(char *line, int size)
 {
     char    *ret;
-    char    tmp[ft_strlen(line) + size];
     int     alloc_size;
     int     index;
 
     index = 0;
     alloc_size = ft_strlen(line) + size;
-    while (index < alloc_size - size)
-    {
-        tmp[index] = line[index];
-        ++index;
-    }
-    index ^= index;
-    free(line); 
     ret = malloc(alloc_size + 1);
     if (ret)
     {
         ret[alloc_size] = 0;
        while (index < alloc_size - size)
        {
-           ret[index] = tmp[index];
+           ret[index] = line[index];
            ++index;
        }
     }
+    free(line); 
     return (ret);
 }
 
