@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/08/19 14:12:47 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/08/22 13:43:44 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,6 @@ char    *cut_back(char *line, int front, int back)
     ret = malloc(itr + 1);
     if (ret)
     {
-        ret[itr] = 0;
         while (itr)
         {
             ret[itr - 1] = line[itr + front];
@@ -138,15 +137,15 @@ void    cut_front(char *src, char **dst, int back)
     dst[0] = ret;
 }
 
-char    **cut_line(char **src, char **dst, int reari)
+int    cut_line(char **src, char **dst, int reari)
 {
     int fronti;
-    char    **ret;
+    int ret;
 
-    ret = src;
     fronti = 0; 
     while (src[0][fronti] && src[0][fronti] != '\n')
         fronti++;
+    ret = (src[0][fronti] ? 0 : 1);
     cut_front(src[0], dst, fronti);
     src[0] = cut_back(src[0], fronti, reari);
     return (ret);
@@ -156,6 +155,7 @@ int get_next_line(int fd, char **line)
 {
     static char     **store;
     int             ret;
+    int             is_eof;
     
     if (fd < 0 || !line)
         return (-1);
@@ -175,10 +175,10 @@ int get_next_line(int fd, char **line)
     ret = fetch_line(fd, store, (store[0] ? ft_strlen(store[0]) : 0));
     if (!store)
         return (-1);
-    store = cut_line(store, line, ft_strlen(store[0]));
+    is_eof = cut_line(store, line, ft_strlen(store[0]));
     if (!store)
         return (-1);
-    if (!ret && !line[0][0] && !store[0][0])
+    if (!ret && is_eof)
     {
         free(store[0]);
         free(store);
