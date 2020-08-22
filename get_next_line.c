@@ -6,7 +6,7 @@
 /*   By: fsugimot <fsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/05 21:21:18 by fsugimot          #+#    #+#             */
-/*   Updated: 2020/08/22 14:32:37 by fsugimot         ###   ########.fr       */
+/*   Updated: 2020/08/22 17:08:45 by fsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,8 +151,6 @@ int get_next_line(int fd, char **line)
     
     if (fd < 0 || !line)
         return (-1);
-    if (line[0])
-        free(line[0]);
     line[0] = malloc(sizeof(char));
     if (!store)
     {
